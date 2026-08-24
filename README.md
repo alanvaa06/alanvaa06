@@ -8,9 +8,9 @@
 I'm Alan — CFA charterholder running equities at an asset manager in
 Mexico City, and AI Advisor at [KaxaNuk](https://github.com/KaxaNuk),
 studied Agentic AI at Johns Hopkins and finance at ITESM. My purpose
-is simple: democratize AI, bring the leverage of agentic systems to
-the financial community and to businesses that the AI wave would
-otherwise leave behind.
+is to democratize AI: put agentic systems in the hands of the
+financial community and of the businesses the AI wave would otherwise
+leave behind.
 
 Everything on this page is a plain README. The graphics are SVGs drawn
 nightly by [this repo's own workflow](.github/workflows/stats.yml) —
@@ -18,18 +18,18 @@ no stats cards, no widgets, nothing that can rate-limit or go dark.
 
 <img src="assets/h-what-im-building.svg" width="100%" alt="what I'm building">
 
-Agents that do real work, built to institutional standards — not demo
-standards. Two fronts:
+Agents that do real work, built to institutional standards. Two
+fronts:
 
 **Markets.** Research agents that map value chains and score equities,
 policy pipelines that read the Fed leak-safe, quant strategies with
-statistically honest backtests. The goal: give any analyst the tooling
-of a quant desk.
+statistically honest backtests. The goal is to give any analyst the
+tooling of a quant desk.
 
 **Underserved businesses.** At KaxaNuk and other ventures I build
-agents that solve unglamorous, high-value problems — mortgage
-underwriting, insurance workflows, small-business operations — for
-markets the big AI vendors don't serve. LatAm first.
+agents that solve unglamorous, high-value problems for markets the
+big AI vendors don't serve: mortgage underwriting, insurance
+workflows, small-business operations. LatAm first.
 
 <img src="assets/h-contributions.svg" width="100%" alt="contributions">
 
