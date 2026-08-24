@@ -244,9 +244,11 @@ def render_punch(punch):
 
 WRITING_URL = "https://www.alanvaa.cloud/writing"
 WRITING_RE = (
-    r'<a[^>]*href="(https://www\.(?:eleconomista\.com\.mx|bloomberglinea\.com)'
-    r'[^"]*)"[^>]*>(.*?)</a>'
+    r'<a[^>]*href="((?:https?://[^"]*(?:eleconomista\.com\.mx|bloomberglinea\.com|'
+    r'higherlogicdownload)[^"]*|/ai-chain[^"]*))"[^>]*>(.*?)</a>'
 )
+# curated: URL substrings, in display order
+WRITING_PICKS = ["higherlogicdownload", "ai-chain", "productividad"]
 
 
 def render_writing():
@@ -259,27 +261,30 @@ def render_writing():
     except OSError:
         print("writing: fetch failed, keeping previous svg")
         return
-    items = []
-    for m in re.finditer(WRITING_RE, src, re.S):
-        import html as html_mod
+    import html as html_mod
 
+    found = {}
+    for m in re.finditer(WRITING_RE, src, re.S):
         inner = re.sub(r"<[^>]+>", "|", m.group(2))
         parts = [
             html_mod.unescape(p).strip()
             for p in inner.split("|")
             if html_mod.unescape(p).strip() not in ("", "·")
         ]
-        # markup yields [outlet, section, title, "Published in...", ...]:
+        # markup yields [outlet, section(s), title, "Published in...", ...]:
         # the title is the last part before the boilerplate begins
         head = []
         for p in parts:
             if p.startswith(("Published", "Read", "Hover")):
                 break
             head.append(p)
-        if len(head) >= 2:
-            items.append((" · ".join(head[:-1]), head[-1], m.group(1)))
-        if len(items) == 3:
-            break
+        if len(head) < 2:
+            continue
+        outlet = head[0] if len(head) == 2 else f"{head[0]} · {head[-2]}"
+        for key in WRITING_PICKS:
+            if key in m.group(1).lower() and key not in found:
+                found[key] = (outlet, head[-1], m.group(1))
+    items = [found[k] for k in WRITING_PICKS if k in found]
     if len(items) < 2:
         # site markup changed — keep whatever the last good run drew
         print("writing: scrape thin, keeping previous svg")
