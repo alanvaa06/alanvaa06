@@ -1,8 +1,6 @@
-<!-- portrait: uncomment once assets/portrait.svg is generated
 <p align="center">
   <img src="assets/portrait.svg" width="460" alt="ASCII self-portrait, typed out row by row">
 </p>
--->
 
 > Head of Equities by day. Multi-agent systems by night.
 > The overlap is the interesting part.
@@ -65,4 +63,6 @@ markets the big AI vendors don't serve. LatAm first.
 
 <img src="assets/h-elsewhere.svg" width="100%" alt="elsewhere">
 
-<samp>[alanvaa.cloud](https://www.alanvaa.cloud/) · [LinkedIn](https://www.linkedin.com/in/alanvaa/)</samp>
+<samp>[alanvaa.cloud](https://www.alanvaa.cloud/) · [LinkedIn](https://www.linkedin.com/in/alan-vazquez-cfa-38515414a/)</samp>
+
+<sub>Portrait and stats drawn by [this repo's own scripts](scripts/) — no external services. Recipe: [a GitHub profile that generates itself](https://agreeable-credit-859.notion.site/A-GitHub-profile-that-generates-itself-3abedfe9a65a81e4afc9daed90cb4e7e). Typeface: JetBrains Mono, OFL.</sub>

@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 photo.*
 headshot.*
+1.0.jpeg
+_face.png
+_preview.html
+.venv-portrait/
