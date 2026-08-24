@@ -84,7 +84,7 @@ def render(lines: list[str]) -> str:
         s.append(
             f'<g clip-path="url(#r{i})"><text x="0" y="{y:.1f}" font-size="{FS}" '
             f"style=\"font-family:'jbmr',monospace\" xml:space=\"preserve\" "
-            f'textLength="{w:.1f}" class="fg">{txt}</text></g>'
+            f'textLength="{w:.1f}" class="accent">{txt}</text></g>'
         )
         # cursor riding the wipe edge, hidden when its row is done
         beg = f"{i * STAGGER:.2f}s"
