@@ -40,12 +40,12 @@ FONTS = {
 WORDS = [
     ("BIENVENIDO", "latin"),
     ("WELCOME", "latin"),
-    ("\u6b22\u8fce", "cjk"),
-    ("\u0938\u094d\u0935\u093e\u0917\u0924", "deva"),
     ("BEM-VINDO", "latin"),
     ("BIENVENUE", "latin"),
     ("WILLKOMMEN", "latin"),
     ("BENVENUTO", "latin"),
+    ("\u6b22\u8fce", "cjk"),
+    ("\u0938\u094d\u0935\u093e\u0917\u0924", "deva"),
 ]
 
 CAPTION = "you found the lab."

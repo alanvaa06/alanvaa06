@@ -8,8 +8,9 @@ Replace the ASCII self-portrait at the top of the profile README (redundant with
 the avatar photo) with a cycling multilingual greeting: eight words, each typed
 in ASCII-ramp characters, holding, fading, looping forever.
 
-Cycle (LatAm-first order): BIENVENIDO → WELCOME → 欢迎 → स्वागत → BEM-VINDO →
-BIENVENUE → WILLKOMMEN → BENVENUTO. 8 × 2.5s = 20s loop.
+Cycle (LatAm-first, non-Latin scripts closing): BIENVENIDO → WELCOME →
+BEM-VINDO → BIENVENUE → WILLKOMMEN → BENVENUTO → 欢迎 → स्वागत.
+8 × 2.5s = 20s loop.
 Fixed caption below the cycle: `you found the lab.`
 
 ## How

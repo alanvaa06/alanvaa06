@@ -6,3 +6,6 @@ headshot.*
 _face.png
 _preview.html
 .venv-portrait/
+*.jpg
+*.jpeg
+*.png
