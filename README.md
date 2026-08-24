@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/portrait.svg" width="460" alt="ASCII self-portrait, typed out row by row">
+  <img src="assets/greeting.svg" width="560" alt="welcome, in eight languages — typed out in ASCII, on a loop">
 </p>
 
 > Head of Equities by day. Multi-agent systems by night.
@@ -65,4 +65,4 @@ markets the big AI vendors don't serve. LatAm first.
 
 <samp>[alanvaa.cloud](https://www.alanvaa.cloud/) · [LinkedIn](https://www.linkedin.com/in/alan-vazquez-cfa-38515414a/)</samp>
 
-<sub>Portrait and stats drawn by [this repo's own scripts](scripts/) — no external services. Recipe: [a GitHub profile that generates itself](https://agreeable-credit-859.notion.site/A-GitHub-profile-that-generates-itself-3abedfe9a65a81e4afc9daed90cb4e7e). Typeface: JetBrains Mono, OFL.</sub>
+<sub>Greeting and stats drawn by [this repo's own scripts](scripts/) — no external services. Recipe: [a GitHub profile that generates itself](https://agreeable-credit-859.notion.site/A-GitHub-profile-that-generates-itself-3abedfe9a65a81e4afc9daed90cb4e7e). Typeface: JetBrains Mono, OFL.</sub>
