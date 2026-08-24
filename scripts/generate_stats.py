@@ -18,17 +18,15 @@ import sys
 import urllib.request
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from svgkit import ROOT, THEME_CSS, char_w, esc, font_face, svg_open
+from svgkit import ROOT, THEME_CSS, esc, font_face, svg_open
 
 LOGIN = "alanvaa06"
 OUT = ROOT / "assets"
 W = 840  # shared page width for every graphic
-RAMP = " .:-=+*#%@"
-
 API = "https://api.github.com/graphql"
 
 QUERY = """
-query($login: String!, $from: DateTime!, $to: DateTime!) {
+query($login: String!, $from: DateTime!, $to: DateTime!, $since: GitTimestamp!) {
   user(login: $login) {
     contributionsCollection(from: $from, to: $to) {
       contributionCalendar {
@@ -45,6 +43,24 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
         }
       }
     }
+    recent: repositories(first: 6, privacy: PUBLIC, ownerAffiliations: OWNER,
+                         isFork: false,
+                         orderBy: {field: PUSHED_AT, direction: DESC}) {
+      nodes { name description pushedAt }
+    }
+    punch: repositories(first: 25, privacy: PUBLIC, ownerAffiliations: OWNER,
+                        isFork: false,
+                        orderBy: {field: PUSHED_AT, direction: DESC}) {
+      nodes {
+        defaultBranchRef {
+          target {
+            ... on Commit {
+              history(first: 100, since: $since) { nodes { committedDate } }
+            }
+          }
+        }
+      }
+    }
   }
 }
 """
@@ -58,7 +74,7 @@ def fetch():
     frm = f"{today - dt.timedelta(days=364)}T00:00:00Z"
     to = f"{today}T23:59:59Z"
     body = json.dumps(
-        {"query": QUERY, "variables": {"login": LOGIN, "from": frm, "to": to}}
+        {"query": QUERY, "variables": {"login": LOGIN, "from": frm, "to": to, "since": frm}}
     ).encode()
     req = urllib.request.Request(
         API,
@@ -85,40 +101,6 @@ def day_series(cal):
     return days
 
 
-def streaks(days):
-    cur = longest = 0
-    cur_range = longest_range = ("", "")
-    run_start = None
-    for date, n in days:
-        if n > 0:
-            if run_start is None:
-                run_start = date
-            cur += 1
-            cur_range = (run_start, date)
-            if cur > longest:
-                longest, longest_range = cur, cur_range
-        else:
-            cur, run_start = 0, None
-    # current streak counts back from the last day (today may still be 0)
-    tail = 0
-    tail_range = ("", "")
-    for date, n in reversed(days):
-        if n > 0:
-            tail += 1
-            tail_range = (date, tail_range[1] or date)
-        elif date != days[-1][0]:
-            break
-    return tail, tail_range, longest, longest_range
-
-
-def fmt_range(a, b):
-    if not a:
-        return "--"
-    da, db = dt.date.fromisoformat(a), dt.date.fromisoformat(b)
-    f = lambda d: d.strftime("%b %d").replace(" 0", " ")
-    return f"{f(da)} - {f(db)}" if a != b else f(da)
-
-
 def css():
     return (
         font_face("jbmono-latin.woff2", "jbm", 400)
@@ -127,18 +109,9 @@ def css():
     )
 
 
-def ramp_css():
-    # the grid draws with the ramp subset; the label needs real letters
-    return (
-        font_face("jbmono-ramp.woff2", "jbmr", 400)
-        + font_face("jbmono-latin.woff2", "jbm", 400)
-        + THEME_CSS
-    )
+# --- graphic 1: activity — hero numbers + honest weekly columns ------------
 
-
-# --- graphic 1: hero total + weekly sparkline ------------------------------
-
-def render_hero(cal, days):
+def render_activity(cal, days):
     total = cal["totalContributions"]
     weekly = [sum(d[1] for d in wk) for wk in chunk_weeks(days)]
     h = 150
@@ -154,54 +127,182 @@ def render_hero(cal, days):
         f'<text x="0" y="118" font-size="13" class="dim">'
         f"{active} active days &#183; best week {max(weekly)}</text>"
     )
-    # weekly area sparkline, right half; weekly aggregates make a line honest
-    x0, x1, y0, y1 = 380, W, 30, 120
+    # weekly columns, right half. Columns, not a line: sparse weeks are
+    # honest as empty space, a line would claim values that never existed.
+    x0, x1, y0, y1 = 380, W, 30, 118
     mx = max(weekly) or 1
     n = len(weekly)
-    pts = []
+    slot = (x1 - x0) / n
+    bw = max(2.0, slot - 2.0)
     for i, v in enumerate(weekly):
-        x = x0 + (x1 - x0) * i / (n - 1)
-        y = y1 - (y1 - y0) * v / mx
-        pts.append(f"{x:.1f},{y:.1f}")
-    area = f"{x0},{y1} " + " ".join(pts) + f" {x1},{y1}"
-    s.append(f'<polygon points="{area}" class="accent" opacity="0.15"/>')
+        if v == 0:
+            continue
+        bh = max(2.0, (y1 - y0) * v / mx)
+        s.append(
+            f'<rect x="{x0 + i * slot:.1f}" y="{y1 - bh:.1f}" '
+            f'width="{bw:.1f}" height="{bh:.1f}" rx="1" class="accent"/>'
+        )
     s.append(
-        f'<polyline points="{" ".join(pts)}" fill="none" class="accent" '
-        f'stroke="var(--accent)" stroke-width="1.5"/>'
+        f'<line x1="{x0}" y1="{y1}" x2="{x1}" y2="{y1}" class="rule" stroke-width="1"/>'
     )
-    s.append(f'<line x1="{x0}" y1="{y1}" x2="{x1}" y2="{y1}" class="rule" stroke-width="1"/>')
     s.append("</svg>")
-    (OUT / "stats-hero.svg").write_text("".join(s), encoding="utf-8")
+    (OUT / "stats-activity.svg").write_text("".join(s), encoding="utf-8")
 
 
 def chunk_weeks(days):
     return [days[i : i + 7] for i in range(0, len(days) - len(days) % 7, 7)] or [days]
 
 
-# --- graphic 2: streaks ----------------------------------------------------
+# --- graphic 2: recently shipped -------------------------------------------
 
-def render_streak(days):
-    cur, cur_r, lng, lng_r = streaks(days)
-    h = 110
+def render_recent(recent):
+    # the profile repo updates itself nightly -- listing it here is noise
+    rows = [r for r in recent["nodes"] if r["name"] != LOGIN][:3]
+    h = 44 + len(rows) * 30
     s = [svg_open(W, h, css())]
-    for i, (label, n, rng) in enumerate(
-        [("current streak", cur, cur_r), ("longest streak", lng, lng_r)]
-    ):
-        x = 0 if i == 0 else 380
-        s.append(f'<text x="{x}" y="24" font-size="13" class="dim">{label}</text>')
+    s.append('<text x="0" y="20" font-size="13" class="dim">recently shipped</text>')
+    for i, r in enumerate(rows):
+        y = 48 + i * 30
+        name = esc(r["name"])
+        desc = (r.get("description") or "").strip()
+        if len(desc) > 62:
+            desc = desc[:59].rstrip() + "..."
+        date = dt.date.fromisoformat(r["pushedAt"][:10]).strftime("%b %d").replace(" 0", " ")
         s.append(
-            f'<text x="{x}" y="66" font-size="34" font-weight="700" class="fg">'
-            f'{n} <tspan font-size="16" font-weight="400" class="dim">days</tspan></text>'
+            f'<text x="0" y="{y}" font-size="13" font-weight="700" class="accent">{name}</text>'
         )
         s.append(
-            f'<text x="{x}" y="94" font-size="13" class="dim">{fmt_range(*rng)}</text>'
+            f'<text x="300" y="{y}" font-size="13" class="dim">{esc(desc)}</text>'
         )
-    s.append(f'<line x1="330" y1="14" x2="330" y2="96" class="rule" stroke-width="1"/>')
+        s.append(
+            f'<text x="{W}" y="{y}" font-size="13" text-anchor="end" class="fg">{date}</text>'
+        )
     s.append("</svg>")
-    (OUT / "stats-streak.svg").write_text("".join(s), encoding="utf-8")
+    (OUT / "stats-recent.svg").write_text("".join(s), encoding="utf-8")
 
 
-# --- graphic 3: top languages, by bytes and by repo ------------------------
+# --- graphic 3: when I build — weekday x hour punch card -------------------
+
+def render_punch(punch):
+    # committedDate carries the author's own UTC offset, so fromisoformat
+    # gives honest local wall-clock time — no timezone hardcoding.
+    # Repos are solo-owned, so no author filter is needed.
+    grid = [[0] * 24 for _ in range(7)]
+    total = 0
+    for repo in punch["nodes"]:
+        ref = repo.get("defaultBranchRef")
+        if not ref:
+            continue
+        for c in ref["target"]["history"]["nodes"]:
+            t = dt.datetime.fromisoformat(c["committedDate"])
+            grid[t.weekday()][t.hour] += 1
+            total += 1
+    if not total:
+        return
+    off_hours = sum(
+        grid[d][h]
+        for d in range(7)
+        for h in range(24)
+        if d >= 5 or h < 9 or h >= 18
+    )
+    pct = round(100 * off_hours / total)
+
+    x0, y0, cw, rh = 46, 46, (W - 60) / 24, 18
+    h = int(y0 + 7 * rh + 40)
+    mx = max(max(r) for r in grid)
+    s = [svg_open(W, h, css())]
+    s.append('<text x="0" y="20" font-size="13" class="dim">when I build</text>')
+    days_lbl = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+    for d in range(7):
+        cy = y0 + d * rh + rh / 2
+        s.append(
+            f'<text x="0" y="{cy + 4:.0f}" font-size="11" class="dim">{days_lbl[d]}</text>'
+        )
+        for hh in range(24):
+            v = grid[d][hh]
+            if not v:
+                continue
+            r = 1.5 + 5.5 * (v / mx) ** 0.5
+            s.append(
+                f'<circle cx="{x0 + hh * cw + cw / 2:.1f}" cy="{cy:.1f}" '
+                f'r="{r:.1f}" class="accent"/>'
+            )
+    for hh in (0, 6, 12, 18, 23):
+        s.append(
+            f'<text x="{x0 + hh * cw + cw / 2:.0f}" y="{y0 + 7 * rh + 14:.0f}" '
+            f'font-size="11" text-anchor="middle" class="dim">{hh:02d}</text>'
+        )
+    s.append(
+        f'<text x="{W}" y="20" font-size="13" text-anchor="end" class="fg">'
+        f"{pct}% of commits land nights or weekends</text>"
+    )
+    s.append("</svg>")
+    (OUT / "stats-punch.svg").write_text("".join(s), encoding="utf-8")
+
+
+# --- graphic 4: writing, scraped from my own site --------------------------
+
+WRITING_URL = "https://www.alanvaa.cloud/writing"
+WRITING_RE = (
+    r'<a[^>]*href="(https://www\.(?:eleconomista\.com\.mx|bloomberglinea\.com)'
+    r'[^"]*)"[^>]*>(.*?)</a>'
+)
+
+
+def render_writing():
+    import re
+
+    try:
+        req = urllib.request.Request(WRITING_URL, headers={"User-Agent": LOGIN})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            src = r.read().decode("utf-8", "replace")
+    except OSError:
+        print("writing: fetch failed, keeping previous svg")
+        return
+    items = []
+    for m in re.finditer(WRITING_RE, src, re.S):
+        import html as html_mod
+
+        inner = re.sub(r"<[^>]+>", "|", m.group(2))
+        parts = [
+            html_mod.unescape(p).strip()
+            for p in inner.split("|")
+            if html_mod.unescape(p).strip() not in ("", "·")
+        ]
+        # markup yields [outlet, section, title, "Published in...", ...]:
+        # the title is the last part before the boilerplate begins
+        head = []
+        for p in parts:
+            if p.startswith(("Published", "Read", "Hover")):
+                break
+            head.append(p)
+        if len(head) >= 2:
+            items.append((" · ".join(head[:-1]), head[-1], m.group(1)))
+        if len(items) == 3:
+            break
+    if len(items) < 2:
+        # site markup changed — keep whatever the last good run drew
+        print("writing: scrape thin, keeping previous svg")
+        return
+    h = 44 + len(items) * 30
+    s = [svg_open(W, h, css())]
+    s.append(
+        '<text x="0" y="20" font-size="13" class="dim">writing, off github</text>'
+    )
+    for i, (outlet, title, _url) in enumerate(items):
+        y = 48 + i * 30
+        s.append(
+            f'<text x="0" y="{y}" font-size="13" class="dim">{esc(outlet)}</text>'
+        )
+        s.append(
+            f'<text x="240" y="{y}" font-size="13" font-weight="700" '
+            f'class="fg">{esc(title[:70])}</text>'
+        )
+    s.append("</svg>")
+    (OUT / "stats-writing.svg").write_text("".join(s), encoding="utf-8")
+
+
+# --- graphic 5: top languages, by bytes and by repo ------------------------
 
 def render_langs(repos):
     by_bytes, by_repos = {}, {}
@@ -247,54 +348,16 @@ def render_langs(repos):
     (OUT / "stats-langs.svg").write_text("".join(s), encoding="utf-8")
 
 
-# --- graphic 4: the year, one character per day, portrait ramp -------------
-
-def render_year(days):
-    weeks = [days[i : i + 7] for i in range(0, len(days), 7)]
-    counts = sorted(n for _, n in days if n > 0)
-
-    def level(n):
-        if n == 0 or not counts:
-            return 0
-        q = sum(1 for c in counts if c <= n) / len(counts)
-        return 1 + min(int(q * (len(RAMP) - 2)), len(RAMP) - 2)
-
-    fs = 13.0
-    cw = char_w(fs)  # 7.8
-    lh = 15.0
-    x0, y0 = 0, 34
-    h = int(y0 + 7 * lh + 24)
-    s = [svg_open(W, h, ramp_css())]
-    s.append(
-        '<text x="0" y="18" font-size="13" class="dim">the year, one character per day</text>'
-    )
-    for row in range(7):
-        chars = []
-        for wk in weeks:
-            if row < len(wk):
-                chars.append(RAMP[level(wk[row][1])])
-            else:
-                chars.append(" ")
-        line = esc("".join(chars)).replace(" ", "&#160;")
-        y = y0 + row * lh + 12
-        s.append(
-            f'<text x="{x0}" y="{y}" font-size="{fs}" '
-            f"style=\"font-family:'jbmr',monospace\" xml:space=\"preserve\" "
-            f'textLength="{len(weeks) * cw:.1f}" class="accent">{line}</text>'
-        )
-    s.append("</svg>")
-    (OUT / "stats-year.svg").write_text("".join(s), encoding="utf-8")
-
-
 def main():
     user = fetch()
     cal = user["contributionsCollection"]["contributionCalendar"]
     days = day_series(cal)
-    render_hero(cal, days)
-    render_streak(days)
+    render_activity(cal, days)
+    render_punch(user["punch"])
+    render_recent(user["recent"])
+    render_writing()
     render_langs(user["repositories"])
-    render_year(days)
-    print("wrote 4 svgs to assets/")
+    print("done: assets/stats-*.svg")
 
 
 if __name__ == "__main__":

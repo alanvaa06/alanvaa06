@@ -33,11 +33,11 @@ markets the big AI vendors don't serve. LatAm first.
 
 <img src="assets/h-contributions.svg" width="100%" alt="contributions">
 
-<img src="assets/stats-hero.svg" width="100%" alt="Total contributions over the past year with a weekly sparkline">
+<img src="assets/stats-activity.svg" width="100%" alt="Total contributions over the past year, with honest weekly columns">
 
-<img src="assets/stats-streak.svg" width="100%" alt="Current and longest contribution streaks">
+<img src="assets/stats-punch.svg" width="100%" alt="Punch card of commit times by weekday and hour — most land nights and weekends">
 
-<img src="assets/stats-year.svg" width="100%" alt="A year of contributions, one ASCII character per day">
+<a href="https://github.com/alanvaa06?tab=repositories"><img src="assets/stats-recent.svg" width="100%" alt="The three public repositories pushed most recently"></a>
 
 <img src="assets/h-selected-work.svg" width="100%" alt="selected work">
 
@@ -63,6 +63,8 @@ markets the big AI vendors don't serve. LatAm first.
 <img src="assets/stats-langs.svg" width="100%" alt="Top languages across public repositories, by bytes and by repository count">
 
 <img src="assets/h-elsewhere.svg" width="100%" alt="elsewhere">
+
+<a href="https://www.alanvaa.cloud/writing"><img src="assets/stats-writing.svg" width="100%" alt="Recent columns published in El Economista and Bloomberg Línea"></a>
 
 <samp>[alanvaa.cloud](https://www.alanvaa.cloud/) · [LinkedIn](https://www.linkedin.com/in/alan-vazquez-cfa-38515414a/)</samp>
 
