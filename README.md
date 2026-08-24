@@ -44,6 +44,7 @@ markets the big AI vendors don't serve. LatAm first.
 - [ai-value-chain-tracker](https://github.com/alanvaa06/ai-value-chain-tracker) — maps the AI-infrastructure value chain, scores equities 0–100, weekly diff.
 - [CB_Policy_Analysis](https://github.com/alanvaa06/CB_Policy_Analysis) — leak-safe FOMC stance-analysis pipeline.
 - [country_rotation_strategies](https://github.com/alanvaa06/country_rotation_strategies) — IC-driven country equity rotation, validated backtests.
+- [risk_regime_switching_model](https://github.com/alanvaa06/risk_regime_switching_model) — RoRo: daily cross-asset risk-on/risk-off classifier from the realized return–volatility cross-section, 64 country indices.
 - [Data-Curator](https://github.com/alanvaa06/Data-Curator) + [Yahoo Finance extension](https://github.com/alanvaa06/Data-Curator-Extensions_Yahoo-Finance) — KaxaNuk's financial data library.
 - [unemployment_analysis](https://github.com/alanvaa06/unemployment_analysis) — has AI taken a toll on US jobs? Reproducible BLS analysis.
 - [Knowledge-Management-System](https://github.com/alanvaa06/Knowledge-Management-System) — Obsidian vault kit for LLM knowledge bases where your own thinking stays sovereign.
