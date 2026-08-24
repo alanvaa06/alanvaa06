@@ -2,15 +2,15 @@
   <img src="assets/greeting.svg" width="560" alt="welcome, in eight languages — typed out in ASCII, on a loop">
 </p>
 
-> Head of Equities by day. Multi-agent systems by night.
+> Investor by day. Multi-agent systems builder by night.
 > The overlap is the interesting part.
 
 I'm Alan — CFA charterholder running equities at an asset manager in
-Mexico City, co-founder and AI Advisor at
-[KaxaNuk](https://github.com/KaxaNuk), studied Agentic AI at Johns
-Hopkins. My purpose is simple: democratize AI — bring the leverage of
-agentic systems to the financial community and to businesses that the
-AI wave would otherwise leave behind.
+Mexico City, and AI Advisor at [KaxaNuk](https://github.com/KaxaNuk),
+studied Agentic AI at Johns Hopkins and finance at ITESM. My purpose
+is simple: democratize AI, bring the leverage of agentic systems to
+the financial community and to businesses that the AI wave would
+otherwise leave behind.
 
 Everything on this page is a plain README. The graphics are SVGs drawn
 nightly by [this repo's own workflow](.github/workflows/stats.yml) —
