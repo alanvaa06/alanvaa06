@@ -129,11 +129,19 @@ def render_activity(cal, days):
     )
     # weekly columns, right half. Columns, not a line: sparse weeks are
     # honest as empty space, a line would claim values that never existed.
-    x0, x1, y0, y1 = 380, W, 30, 118
+    x0, x1, y0, y1 = 380, W, 42, 112
+    weeks = chunk_weeks(days)
     mx = max(weekly) or 1
     n = len(weekly)
     slot = (x1 - x0) / n
     bw = max(2.0, slot - 2.0)
+    s.append(
+        f'<text x="{x0}" y="28" font-size="12" class="dim">commits per week</text>'
+    )
+    s.append(
+        f'<text x="{x1}" y="28" font-size="12" text-anchor="end" '
+        f'class="dim">peak {mx}</text>'
+    )
     for i, v in enumerate(weekly):
         if v == 0:
             continue
@@ -145,6 +153,17 @@ def render_activity(cal, days):
     s.append(
         f'<line x1="{x0}" y1="{y1}" x2="{x1}" y2="{y1}" class="rule" stroke-width="1"/>'
     )
+    # month ticks: label a week when its month changes, min 6 weeks apart
+    last_mark, last_month = -10, None
+    for i, wk in enumerate(weeks):
+        m = dt.date.fromisoformat(wk[0][0]).strftime("%b").lower()
+        if m != last_month and i - last_mark >= 6:
+            s.append(
+                f'<text x="{x0 + i * slot:.0f}" y="{y1 + 16}" font-size="11" '
+                f'class="dim">{m}</text>'
+            )
+            last_mark = i
+        last_month = m
     s.append("</svg>")
     (OUT / "stats-activity.svg").write_text("".join(s), encoding="utf-8")
 
@@ -214,8 +233,11 @@ def render_punch(punch):
     mx = max(hours)
     x0, x1, y0, y1 = 46, W, 40, 130
     cw = (x1 - x0) / 24
-    s = [svg_open(W, 170, css())]
-    s.append('<text x="0" y="20" font-size="13" class="dim">when I build</text>')
+    s = [svg_open(W, 188, css())]
+    s.append(
+        '<text x="0" y="20" font-size="13" class="dim">when I build '
+        '&#183; commits per hour of day</text>'
+    )
     s.append(
         f'<text x="{W}" y="20" font-size="13" text-anchor="end" class="fg">'
         f"{pct}% of commits land outside market hours</text>"
@@ -245,6 +267,10 @@ def render_punch(punch):
             f'<text x="{x0 + h * cw + cw / 2:.0f}" y="{y1 + 16}" font-size="11" '
             f'text-anchor="middle" class="dim">{h:02d}</text>'
         )
+    s.append(
+        f'<text x="{(x0 + x1) / 2:.0f}" y="{y1 + 34}" font-size="11" '
+        f'text-anchor="middle" class="dim">hour of day &#183; Mexico City time</text>'
+    )
     s.append("</svg>")
     (OUT / "stats-punch.svg").write_text("".join(s), encoding="utf-8")
 
