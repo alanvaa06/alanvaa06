@@ -35,7 +35,7 @@ markets the big AI vendors don't serve. LatAm first.
 
 <img src="assets/stats-activity.svg" width="100%" alt="Total contributions over the past year, with honest weekly columns">
 
-<img src="assets/stats-punch.svg" width="100%" alt="Punch card of commit times by weekday and hour — most land nights and weekends">
+<img src="assets/stats-punch.svg" width="100%" alt="Hourly histogram of commit times — the valley sits inside market hours">
 
 <a href="https://github.com/alanvaa06?tab=repositories"><img src="assets/stats-recent.svg" width="100%" alt="The three public repositories pushed most recently"></a>
 

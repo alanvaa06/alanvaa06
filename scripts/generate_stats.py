@@ -183,6 +183,9 @@ def render_recent(recent):
 
 # --- graphic 3: when I build — weekday x hour punch card -------------------
 
+MARKET_OPEN, MARKET_CLOSE = 7, 15  # BMV cash session, Mexico City local
+
+
 def render_punch(punch):
     # committedDate carries the author's own UTC offset, so fromisoformat
     # gives honest local wall-clock time — no timezone hardcoding.
@@ -203,39 +206,45 @@ def render_punch(punch):
         grid[d][h]
         for d in range(7)
         for h in range(24)
-        if d >= 5 or h < 9 or h >= 18
+        if d >= 5 or h < MARKET_OPEN or h >= MARKET_CLOSE
     )
     pct = round(100 * off_hours / total)
 
-    x0, y0, cw, rh = 46, 46, (W - 60) / 24, 18
-    h = int(y0 + 7 * rh + 40)
-    mx = max(max(r) for r in grid)
-    s = [svg_open(W, h, css())]
+    hours = [sum(grid[d][h] for d in range(7)) for h in range(24)]
+    mx = max(hours)
+    x0, x1, y0, y1 = 46, W, 40, 130
+    cw = (x1 - x0) / 24
+    s = [svg_open(W, 170, css())]
     s.append('<text x="0" y="20" font-size="13" class="dim">when I build</text>')
-    days_lbl = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-    for d in range(7):
-        cy = y0 + d * rh + rh / 2
-        s.append(
-            f'<text x="0" y="{cy + 4:.0f}" font-size="11" class="dim">{days_lbl[d]}</text>'
-        )
-        for hh in range(24):
-            v = grid[d][hh]
-            if not v:
-                continue
-            r = 1.5 + 5.5 * (v / mx) ** 0.5
-            s.append(
-                f'<circle cx="{x0 + hh * cw + cw / 2:.1f}" cy="{cy:.1f}" '
-                f'r="{r:.1f}" class="accent"/>'
-            )
-    for hh in (0, 6, 12, 18, 23):
-        s.append(
-            f'<text x="{x0 + hh * cw + cw / 2:.0f}" y="{y0 + 7 * rh + 14:.0f}" '
-            f'font-size="11" text-anchor="middle" class="dim">{hh:02d}</text>'
-        )
     s.append(
         f'<text x="{W}" y="20" font-size="13" text-anchor="end" class="fg">'
-        f"{pct}% of commits land nights or weekends</text>"
+        f"{pct}% of commits land outside market hours</text>"
     )
+    band_w = (MARKET_CLOSE - MARKET_OPEN) * cw
+    s.append(
+        f'<rect x="{x0 + MARKET_OPEN * cw:.1f}" y="{y0}" width="{band_w:.1f}" '
+        f'height="{y1 - y0}" class="faint"/>'
+    )
+    s.append(
+        f'<text x="{x0 + (MARKET_OPEN + MARKET_CLOSE) / 2 * cw:.0f}" y="{y0 + 12}" '
+        f'font-size="10" text-anchor="middle" class="dim">market hours</text>'
+    )
+    for h, v in enumerate(hours):
+        if not v:
+            continue
+        bh = max(2.0, (y1 - y0 - 16) * v / mx)
+        s.append(
+            f'<rect x="{x0 + h * cw + 1.5:.1f}" y="{y1 - bh:.1f}" '
+            f'width="{cw - 3:.1f}" height="{bh:.1f}" rx="1.5" class="accent"/>'
+        )
+    s.append(
+        f'<line x1="{x0}" y1="{y1}" x2="{x1}" y2="{y1}" class="rule" stroke-width="1"/>'
+    )
+    for h in (0, 3, MARKET_OPEN, 11, MARKET_CLOSE, 18, 21, 23):
+        s.append(
+            f'<text x="{x0 + h * cw + cw / 2:.0f}" y="{y1 + 16}" font-size="11" '
+            f'text-anchor="middle" class="dim">{h:02d}</text>'
+        )
     s.append("</svg>")
     (OUT / "stats-punch.svg").write_text("".join(s), encoding="utf-8")
 
