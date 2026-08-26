@@ -8,9 +8,8 @@
 I'm Alan — CFA charterholder running equities at an asset manager in
 Mexico City, and AI Advisor at [KaxaNuk](https://github.com/KaxaNuk),
 studied Agentic AI at Johns Hopkins and finance at ITESM. My purpose
-is to democratize AI: put agentic systems in the hands of the
-financial community and of the businesses the AI wave would otherwise
-leave behind.
+is to explore where frontier technology capabilities meet systematic
+and fundamental investing.
 
 Everything on this page is a plain README. The graphics are SVGs drawn
 nightly by [this repo's own workflow](.github/workflows/stats.yml) —
@@ -18,18 +17,24 @@ no stats cards, no widgets, nothing that can rate-limit or go dark.
 
 <img src="assets/h-what-im-building.svg" width="100%" alt="what I'm building">
 
-Agents that do real work, built to institutional standards. Two
+Agents that do real work, built to institutional standards. Three
 fronts:
 
 **Markets.** Research agents that map value chains and score equities,
 policy pipelines that read the Fed leak-safe, quant strategies with
-statistically honest backtests. The goal is to give any analyst the
-tooling of a quant desk.
+statistically honest backtests. Everything public here is a
+prototype. The ideas are real, the code is an experiment, and nothing
+on this page runs a portfolio.
 
-**Underserved businesses.** At KaxaNuk and other ventures I build
-agents that solve unglamorous, high-value problems for markets the
-big AI vendors don't serve: mortgage underwriting, insurance
-workflows, small-business operations. LatAm first.
+**Underserved businesses.** At KaxaNuk and other ventures I explore
+how far agentic capabilities go at solving real frictions for LatAm
+businesses. Mortgage underwriting, insurance workflows, small-business
+operations — the unglamorous, high-value problems the big AI vendors
+don't serve.
+
+**Open source tooling.** The skills, plugins and libraries I build to
+do the two above, released so anyone can pick them up and bend them
+to their own work.
 
 <img src="assets/h-contributions.svg" width="100%" alt="contributions">
 
@@ -44,7 +49,6 @@ workflows, small-business operations. LatAm first.
 - [ai-value-chain-tracker](https://github.com/alanvaa06/ai-value-chain-tracker) — maps the AI-infrastructure value chain, scores equities 0–100, weekly diff.
 - [CB_Policy_Analysis](https://github.com/alanvaa06/CB_Policy_Analysis) — leak-safe FOMC stance-analysis pipeline.
 - [country_rotation_strategies](https://github.com/alanvaa06/country_rotation_strategies) — IC-driven country equity rotation, validated backtests.
-- [risk_regime_switching_model](https://github.com/alanvaa06/risk_regime_switching_model) — RoRo: daily cross-asset risk-on/risk-off classifier from the realized return–volatility cross-section, 64 country indices.
 - [Data-Curator](https://github.com/alanvaa06/Data-Curator) + [Yahoo Finance extension](https://github.com/alanvaa06/Data-Curator-Extensions_Yahoo-Finance) — KaxaNuk's financial data library.
 - [unemployment_analysis](https://github.com/alanvaa06/unemployment_analysis) — has AI taken a toll on US jobs? Reproducible BLS analysis.
 - [Knowledge-Management-System](https://github.com/alanvaa06/Knowledge-Management-System) — Obsidian vault kit for LLM knowledge bases where your own thinking stays sovereign.

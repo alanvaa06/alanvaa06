@@ -48,7 +48,7 @@ WORDS = [
     ("\u0938\u094d\u0935\u093e\u0917\u0924", "deva"),
 ]
 
-CAPTION = "you found the lab."
+CAPTION = "to my lab."
 
 
 def word_to_ascii(text: str, kind: str) -> list[str]:
