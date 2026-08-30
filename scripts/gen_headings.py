@@ -13,11 +13,8 @@ from svgkit import ROOT, THEME_CSS, char_w, esc, font_face, svg_open
 
 W, H, FS = 840, 30, 15
 HEADINGS = [
-    "what i'm building",
     "contributions",
-    "selected work",
     "claude code tooling",
-    "stack",
     "elsewhere",
 ]
 
