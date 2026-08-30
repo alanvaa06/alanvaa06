@@ -25,13 +25,6 @@ no stats cards, no widgets, nothing that can rate-limit or go dark.
 
 <img src="assets/stats-langs.svg" width="100%" alt="Top languages across public repositories, by bytes and by repository count">
 
-<img src="assets/h-claude-code-tooling.svg" width="100%" alt="claude code tooling">
-
-- [forge-master](https://github.com/alanvaa06/forge-master) — autonomous TDD execution loop with deterministic escalation.
-- [viability](https://github.com/alanvaa06/viability) — adversarial pipeline: empty folder → Go/Pivot/No-Go verdict.
-- [agent-cycle](https://github.com/alanvaa06/agent-cycle) — design → spec → evals → build, for agents that hold up.
-- [award-craft](https://github.com/alanvaa06/award-craft) — six skills for Awwwards-level landing pages.
-
 <img src="assets/h-elsewhere.svg" width="100%" alt="elsewhere">
 
 <a href="https://www.alanvaa.cloud/writing"><img src="assets/stats-writing.svg" width="100%" alt="Recent columns published in El Economista and Bloomberg Línea"></a>
