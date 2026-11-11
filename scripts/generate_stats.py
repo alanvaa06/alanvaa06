@@ -15,6 +15,8 @@ import json
 import os
 import pathlib
 import sys
+import time
+import urllib.error
 import urllib.request
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -25,8 +27,12 @@ OUT = ROOT / "assets"
 W = 840  # shared page width for every graphic
 API = "https://api.github.com/graphql"
 
+# GitHub kills any GraphQL request that runs past 10s server-side and answers
+# 502/504. One combined query sat right at that limit and failed about one
+# night in five, so the commit history (the heaviest part) is a separate
+# request, and transient 5xx answers are retried.
 QUERY = """
-query($login: String!, $from: DateTime!, $to: DateTime!, $since: GitTimestamp!) {
+query($login: String!, $from: DateTime!, $to: DateTime!) {
   user(login: $login) {
     contributionsCollection(from: $from, to: $to) {
       contributionCalendar {
@@ -48,6 +54,13 @@ query($login: String!, $from: DateTime!, $to: DateTime!, $since: GitTimestamp!) 
                          orderBy: {field: PUSHED_AT, direction: DESC}) {
       nodes { name description pushedAt }
     }
+  }
+}
+"""
+
+PUNCH_QUERY = """
+query($login: String!, $since: GitTimestamp!) {
+  user(login: $login) {
     punch: repositories(first: 25, privacy: PUBLIC, ownerAffiliations: OWNER,
                         isFork: false,
                         orderBy: {field: PUSHED_AT, direction: DESC}) {
@@ -66,6 +79,35 @@ query($login: String!, $from: DateTime!, $to: DateTime!, $since: GitTimestamp!) 
 """
 
 
+RETRY_WAITS = (10, 30)  # seconds before the 2nd and 3rd attempt
+
+
+def graphql(token, query, variables):
+    req = urllib.request.Request(
+        API,
+        data=json.dumps({"query": query, "variables": variables}).encode(),
+        headers={
+            "Authorization": f"bearer {token}",
+            "Content-Type": "application/json",
+            "User-Agent": LOGIN,
+        },
+    )
+    for wait in (*RETRY_WAITS, None):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.load(r)
+            break
+        except OSError as e:  # HTTPError, URLError and timeouts
+            code = getattr(e, "code", None)
+            if wait is None or (code is not None and code not in (502, 503, 504)):
+                raise
+            print(f"graphql: {e}; retrying in {wait}s", file=sys.stderr)
+            time.sleep(wait)
+    if "errors" in data:
+        sys.exit(f"GraphQL errors: {data['errors']}")
+    return data["data"]["user"]
+
+
 def fetch():
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if not token:
@@ -73,23 +115,9 @@ def fetch():
     today = dt.datetime.now(dt.timezone.utc).date()
     frm = f"{today - dt.timedelta(days=364)}T00:00:00Z"
     to = f"{today}T23:59:59Z"
-    body = json.dumps(
-        {"query": QUERY, "variables": {"login": LOGIN, "from": frm, "to": to, "since": frm}}
-    ).encode()
-    req = urllib.request.Request(
-        API,
-        data=body,
-        headers={
-            "Authorization": f"bearer {token}",
-            "Content-Type": "application/json",
-            "User-Agent": LOGIN,
-        },
-    )
-    with urllib.request.urlopen(req) as r:
-        data = json.load(r)
-    if "errors" in data:
-        sys.exit(f"GraphQL errors: {data['errors']}")
-    return data["data"]["user"]
+    user = graphql(token, QUERY, {"login": LOGIN, "from": frm, "to": to})
+    user.update(graphql(token, PUNCH_QUERY, {"login": LOGIN, "since": frm}))
+    return user
 
 
 def day_series(cal):
